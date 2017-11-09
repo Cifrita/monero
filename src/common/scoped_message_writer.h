@@ -31,6 +31,10 @@
 #include "misc_log_ex.h"
 #include <iostream>
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 #ifdef HAVE_READLINE
   #include "readline_buffer.h"
   #define PAUSE_READLINE() \
@@ -108,7 +112,15 @@ public:
       else
       {
         PAUSE_READLINE();
+#if defined(_WIN32)
+        OSVERSIONINFO osvi;
+        ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+        GetVersionEx(&osvi);
+        if(osvi.dwMajorVersion >= 10) set_console_color(m_color, m_bright);
+#else
         set_console_color(m_color, m_bright);
+#endif
         std::cout << m_oss.str();
         epee::reset_console_color();
       }
